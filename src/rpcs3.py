@@ -32,11 +32,17 @@ class RPCS3Game:
         self.id = id
         self.directory = directory
 
+        self._sfo_file = path.join(directory, "PS3_GAME", "PARAM.SFO")
+        self._cached_sfo = None
+
     @staticmethod
     def from_yaml_line(line: str):
         line_parts = [part.strip() for part in line.split(":")]
 
         return RPCS3Game(line_parts[0], line_parts[1])
+
+    def _sfo(self):
+        return self._cached_sfo
 
     @property
     def name(self) -> str:

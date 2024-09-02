@@ -4,11 +4,13 @@ from galaxy.api.consts import Platform
 from galaxy.api.types import Authentication, Game, LicenseInfo, LicenseType, NextStep
 
 
-class PluginExample(Plugin):
+class RPCS3IntegrationPlugin(Plugin):
+    VERSION = "0.1"
+
     def __init__(self, reader, writer, token):
         super().__init__(
-            Platform.PlayStation,  # choose platform from available list
-            "0.1",  # version
+            Platform.PlayStation,
+            RPCS3IntegrationPlugin.VERSION,
             reader,
             writer,
             token,
@@ -24,7 +26,7 @@ class PluginExample(Plugin):
 
 
 def main():
-    create_and_run_plugin(PluginExample, sys.argv)
+    create_and_run_plugin(RPCS3IntegrationPlugin, sys.argv)
 
 
 # run plugin event loop
