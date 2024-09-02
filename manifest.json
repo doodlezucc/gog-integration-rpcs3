@@ -1,0 +1,11 @@
+{
+  "name": "PlayStation Integration with RPCS3",
+  "platform": "psx",
+  "guid": "ccf5328b-4a9a-44aa-9f25-3d8b02bad96e",
+  "version": "0.1",
+  "description": "Enables integration with the RPCS3 emulator",
+  "author": "doodlezucc",
+  "email": "theoretically.online@gmail.com",
+  "url": "https://github.com/user/galaxy-plugin-example",
+  "script": "src/plugin.py"
+}
