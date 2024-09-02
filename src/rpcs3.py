@@ -5,6 +5,7 @@ from os import path
 from typing import List
 
 from .platform_overrides import Platform
+from .sfo import decode_sfo_file
 
 
 class RPCS3:
@@ -21,7 +22,7 @@ class RPCS3:
         with io.open(self.games_file) as file:
             file_content = file.read()
             valid_yaml_lines = [
-                line for line in file_content.splitlines() if ":" in line
+                line for line in file_content.splitlines() if ": " in line
             ]
 
             return [RPCS3Game.from_yaml_line(line) for line in valid_yaml_lines]
@@ -32,18 +33,22 @@ class RPCS3Game:
         self.id = id
         self.directory = directory
 
-        self._sfo_file = path.join(directory, "PS3_GAME", "PARAM.SFO")
         self._cached_sfo = None
 
     @staticmethod
     def from_yaml_line(line: str):
-        line_parts = [part.strip() for part in line.split(":")]
+        line_parts = [part.strip() for part in line.split(": ")]
 
         return RPCS3Game(line_parts[0], line_parts[1])
 
+    @property
     def _sfo(self):
+        if self._cached_sfo is None:
+            sfo_file = path.join(self.directory, "PS3_GAME", "PARAM.SFO")
+            self._cached_sfo = decode_sfo_file(sfo_file)
+
         return self._cached_sfo
 
     @property
-    def name(self) -> str:
-        raise NotImplementedError()
+    def title(self) -> str:
+        return self._sfo.title

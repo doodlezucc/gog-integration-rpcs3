@@ -6,6 +6,6 @@
   "description": "Enables integration with the RPCS3 emulator",
   "author": "doodlezucc",
   "email": "theoretically.online@gmail.com",
-  "url": "https://github.com/user/galaxy-plugin-example",
-  "script": "src/plugin.py"
+  "url": "https://github.com/doodlezucc/gog-integration-rpcs3",
+  "script": "plugin.py"
 }
