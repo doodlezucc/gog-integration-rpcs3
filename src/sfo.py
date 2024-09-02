@@ -10,23 +10,27 @@ class Sfo:
     def __getitem__(self, key):
         return self._mapping[key]
 
-    def _get_string(self, key) -> str:
+    def get_string(self, key) -> str:
         return str(self[key])
 
-    def _get_int(self, key) -> int:
+    def get_int(self, key) -> int:
         return int(self[key])
 
     @property
+    def title_id(self):
+        return self.get_string("TITLE_ID")
+
+    @property
     def title(self):
-        return self._get_string("TITLE")
+        return self.get_string("TITLE")
 
     @property
-    def license(self):
-        return self._get_string("LICENSE")
+    def category(self):
+        return self.get_string("CATEGORY")
 
     @property
-    def language(self):
-        return self._get_string("LANG")
+    def app_version(self):
+        return self.get_string("APP_VER")
 
 
 class SfoDecoder:
@@ -67,6 +71,7 @@ class SfoDecoder:
         read_bytes = self._read(1)
         while read_bytes[0] != NULL:
             utf8_bytes.append(read_bytes[0])
+            read_bytes = self._read(1)
 
         return str(utf8_bytes, encoding="utf-8")
 
@@ -117,8 +122,11 @@ class SfoDecoder:
         raise KeyError("Unknown data format " + hex(format))
 
     def _extract_entry_pair(self, entry: "SfoEntry") -> Tuple[str, Union[str, int]]:
-        key = self._extract_key(entry.key_offset)
-        data = self._extract_data(entry.data_offset, entry.data_len, entry.data_fmt)
+        key = self._extract_key(self.key_table_start + entry.key_offset)
+
+        data = self._extract_data(
+            self.data_table_start + entry.data_offset, entry.data_len, entry.data_fmt
+        )
 
         return (key, data)
 
@@ -130,12 +138,13 @@ class SfoDecoder:
         self.read_header()
         entries = self.read_index_table()
 
-        return dict(self._extract_entry_pair(entry) for entry in entries)
+        mapping = dict(self._extract_entry_pair(entry) for entry in entries)
+        return Sfo(mapping)
 
 
-class SfoEntryFormats(Enum):
-    UTF8_SPECIAL = 0x0400
-    UTF8 = 0x0402
+class SfoEntryFormats:
+    UTF8_SPECIAL = 0x0004
+    UTF8 = 0x0204
     UNSIGNED_INT = 0x0404
 
 
