@@ -18,6 +18,7 @@
 </script>
 
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import FileExplorerItemRow from './FileExplorerItemRow.svelte';
 	import TableRow from './TableRow.svelte';
 
@@ -30,7 +31,7 @@
 	let files: FileSystemEntity[] = [];
 
 	$: {
-		if (path) {
+		if (path && browser) {
 			controller.listFilesInDirectory(path).then((fetchedFiles) => (files = fetchedFiles));
 		}
 	}
@@ -85,6 +86,7 @@
 		gap: 8px;
 		padding: 16px;
 		border-radius: 16px;
+		min-height: 0;
 	}
 
 	.row {
@@ -92,6 +94,7 @@
 		display: flex;
 		flex-direction: row;
 		gap: 8px;
+		min-height: 0;
 	}
 
 	.expand {

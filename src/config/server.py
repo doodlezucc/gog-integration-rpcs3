@@ -23,6 +23,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server) -> None:
         super().__init__(request, client_address, server, directory=FRONTEND_DIRECTORY)
 
+    # Overridden to bypass slow FQDN lookup.
+    # Copied from https://stackoverflow.com/a/5273870
+    def address_string(self):
+        host, port = self.client_address[:2]
+        return host
+
     def do_GET(self):
         if self.path.startswith("/api"):
             return self.handle_file_explorer_api(self.path[5:])
@@ -56,14 +62,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def handle_api_list(self, params: dict):
         directory = str(params["directory"][0])
 
-        if not directory.endswith("/"):
-            directory += "/"
+        dir_entries = os.scandir(directory)
 
-        file_system_entities = os.listdir(directory)
-
-        def file_type(file_name: str):
-            is_directory = os.path.isdir(path.join(directory, file_name))
-
+        def file_type(is_directory: bool):
             if is_directory:
                 return "directory"
             else:
@@ -71,8 +72,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
         return self._send_response_json(
             [
-                {"basename": file_name, "type": file_type(file_name)}
-                for file_name in file_system_entities
+                {"basename": dir_entry.name, "type": file_type(dir_entry.is_dir())}
+                for dir_entry in dir_entries
             ]
         )
 
@@ -81,7 +82,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
         json_bytes = bytes(json_string, "utf-8")
 
         self.send_response(HTTPStatus.OK)
-        self.send_header("Content-type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "http://localhost:5173")
+        self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(json_bytes)))
         self.end_headers()
 
@@ -89,7 +91,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
 
 def serve_file_explorer():
-    server = ThreadingHTTPServer(("", SERVER_PORT), CustomHandler)
+    server = ThreadingHTTPServer(("localhost", SERVER_PORT), CustomHandler)
 
     server_thread = Thread(target=server.serve_forever)
     server_thread.daemon = True

@@ -22,8 +22,7 @@
 		color: var(--color-text);
 		background-color: var(--color-background);
 
-		min-width: 100vw;
-		min-height: 100vh;
+		height: 100vh;
 		margin: 0;
 		padding: 80px 24px;
 		box-sizing: border-box;

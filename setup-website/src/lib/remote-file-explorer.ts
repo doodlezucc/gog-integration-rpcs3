@@ -5,26 +5,22 @@ import type {
 } from './FileExplorer.svelte';
 
 export class RemoteFileExplorerController implements FileExplorerController {
-	private async fetchJson(endpoint: string) {
-		const response = await fetch(endpoint);
+	readonly baseUrl: string;
 
+	constructor(baseUrl: string) {
+		this.baseUrl = baseUrl;
+	}
+
+	private async fetchJson(endpoint: string) {
+		const response = await fetch(this.baseUrl + endpoint);
 		return await response.json();
 	}
 
-	async listFilesInDirectory(): Promise<FileSystemEntity[]> {
-		return [
-			{
-				basename: 'example-directory',
-				type: 'directory'
-			},
-			{
-				basename: 'rpcs3.exe',
-				type: 'file'
-			}
-		];
+	async listFilesInDirectory(directory: string): Promise<FileSystemEntity[]> {
+		return await this.fetchJson(`/list?directory=${directory}`);
 	}
 
 	async listRoots(): Promise<FileSystemRoot[]> {
-		return [{ identifier: 'C:' }, { identifier: 'D:' }];
+		return await this.fetchJson('/roots');
 	}
 }
