@@ -1,27 +1,23 @@
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
-from os import path
 import os
-import string
+from pathlib import Path
 from threading import Thread
 from urllib.parse import parse_qs, urlparse
 
-# from ..platform_overrides import Platform
+from .platform_overrides import Platform
 
 # P -> 16, S -> 19
 SERVER_PORT = 1619
-FRONTEND_DIRECTORY = "setup-website/build"
-
-
-def list_file_system_roots():
-    # One liner from https://stackoverflow.com/a/34187346
-    return ["%s:" % d for d in string.ascii_uppercase if path.exists("%s:" % d)]
+FRONTEND_DIRECTORY = Path(__file__).parent.parent / "setup-website/build"
 
 
 class CustomHandler(SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server) -> None:
-        super().__init__(request, client_address, server, directory=FRONTEND_DIRECTORY)
+        super().__init__(
+            request, client_address, server, directory=str(FRONTEND_DIRECTORY.resolve())
+        )
 
     # Overridden to bypass slow FQDN lookup.
     # Copied from https://stackoverflow.com/a/5273870
@@ -33,7 +29,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
         if self.path.startswith("/api"):
             return self.handle_file_explorer_api(self.path[5:])
 
-        super().do_GET()
+        return super().do_GET()
 
     def handle_file_explorer_api(self, path: str):
         parsed_url = urlparse(path)
@@ -54,8 +50,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
         return self._send_response_json(
             [
                 {"identifier": root_dir}
-                # for root_dir in Platform.current.list_file_system_roots()
-                for root_dir in list_file_system_roots()
+                for root_dir in Platform.current.list_file_system_roots()
             ]
         )
 
@@ -65,10 +60,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
         dir_entries = os.scandir(directory)
 
         def file_type(is_directory: bool):
-            if is_directory:
-                return "directory"
-            else:
-                return "file"
+            return "directory" if is_directory else "file"
 
         return self._send_response_json(
             [
@@ -78,11 +70,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
         )
 
     def _send_response_json(self, object):
+        self.send_response(HTTPStatus.OK)
+
         json_string = json.dumps(object)
         json_bytes = bytes(json_string, "utf-8")
 
-        self.send_response(HTTPStatus.OK)
+        # Development
         self.send_header("Access-Control-Allow-Origin", "http://localhost:5173")
+
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(json_bytes)))
         self.end_headers()
@@ -97,8 +92,4 @@ def serve_file_explorer():
     server_thread.daemon = True
     server_thread.start()
 
-    while True:
-        pass
-
-
-serve_file_explorer()
+    return server

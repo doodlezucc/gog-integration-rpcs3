@@ -1,11 +1,19 @@
+import os
 import sys
 from typing import List
 
 from galaxy.api.plugin import Plugin, create_and_run_plugin
 from galaxy.api.consts import LocalGameState, Platform
-from galaxy.api.types import Authentication, Game, LicenseInfo, LicenseType, LocalGame
+from galaxy.api.types import (
+    Game,
+    LicenseInfo,
+    LicenseType,
+    LocalGame,
+    NextStep,
+)
 
 from src.rpcs3 import RPCS3, RPCS3Game
+from src.setup_server import serve_file_explorer
 
 RPCS3_ROOT = "<redacted>"
 
@@ -26,7 +34,19 @@ class RPCS3IntegrationPlugin(Plugin):
 
     # required
     async def authenticate(self, stored_credentials=None):
-        return Authentication("rpcs3_user", "RPCS3")
+        server = serve_file_explorer()
+
+        host, port = server.server_address
+
+        PARAMS = {
+            "window_title": f"Configure, {__file__}",
+            "window_width": 800,
+            "window_height": 600,
+            "start_uri": f"http://localhost:{port}",
+            "end_uri_regex": r"^https://platform_website\.com/.*",
+        }
+
+        return NextStep("rpcs3_user", PARAMS)
 
     # required
     async def get_owned_games(self):
