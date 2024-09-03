@@ -6,16 +6,13 @@
 	import Icon from './Icon.svelte';
 	import FolderRegular from './icons/FolderRegular.svelte';
 	import PlayStation from './icons/PlayStation.svelte';
-	import TableRow from './TableRow.svelte';
 
 	export let type: FileSystemEntityType;
 	export let name: string;
 </script>
 
-<TableRow on:click>
-	<td align="center"><Icon Component={type === 'file' ? PlayStation : FolderRegular} /></td>
-	<td><span>{name}</span></td>
-</TableRow>
+<td align="center"><Icon Component={type === 'file' ? PlayStation : FolderRegular} /></td>
+<td><span>{name}</span></td>
 
 <style>
 	td:first-child {

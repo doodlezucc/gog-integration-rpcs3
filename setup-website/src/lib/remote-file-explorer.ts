@@ -6,9 +6,15 @@ import type {
 
 export class RemoteFileExplorerController implements FileExplorerController {
 	readonly baseUrl: string;
+	private readonly fileFilter: (fse: FileSystemEntity) => boolean;
 
-	constructor(baseUrl: string) {
+	constructor(baseUrl: string, fileFilter: (fse: FileSystemEntity) => boolean) {
 		this.baseUrl = baseUrl;
+		this.fileFilter = fileFilter;
+	}
+
+	filterFileSystemEntity(fse: FileSystemEntity): boolean {
+		return this.fileFilter(fse);
 	}
 
 	private async fetchJson(endpoint: string) {

@@ -1,23 +1,26 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
+
 	export let selected = false;
+	export let staggeringIndex = 0;
 </script>
 
-<tr class:selected on:click>
+<tr class:selected on:click in:fly={{ y: 10, delay: 20 * staggeringIndex }}>
 	<slot />
 </tr>
 
 <style>
-	tr {
+	:global(tr) {
 		user-select: none;
 		height: 36px;
 		transition-duration: 0.3s;
 	}
 
-	tr.selected {
+	:global(tr.selected) {
 		background-color: var(--color-selected);
 	}
 
-	tr:hover {
+	:global(tr:hover) {
 		background-color: var(--color-hover);
 		transition-duration: 0s;
 	}

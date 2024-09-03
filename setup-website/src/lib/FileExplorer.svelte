@@ -14,37 +14,76 @@
 	export interface FileExplorerController {
 		listRoots(): Promise<FileSystemRoot[]>;
 		listFilesInDirectory(directoryPath: string): Promise<FileSystemEntity[]>;
+		filterFileSystemEntity(fse: FileSystemEntity): boolean;
 	}
 </script>
 
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { pushState, replaceState } from '$app/navigation';
 	import FileExplorerItemRow from './FileExplorerItemRow.svelte';
 	import TableRow from './TableRow.svelte';
 
 	export let controller: FileExplorerController;
-	export let path = '';
+	export let path: string | undefined = undefined;
 
 	$: userEnteredPath = path;
 
 	let roots: FileSystemRoot[] = [];
-	let files: FileSystemEntity[] = [];
+	let allFiles: FileSystemEntity[] = [];
 
 	$: {
 		if (path && browser) {
-			controller.listFilesInDirectory(path).then((fetchedFiles) => (files = fetchedFiles));
+			allFiles = [];
+			controller.listFilesInDirectory(path).then((fetchedFiles) => (allFiles = fetchedFiles));
 		}
+	}
+
+	function pushDirectory(directoryName: string) {
+		if (path && !path.endsWith('/')) {
+			path += '/';
+		}
+
+		path += directoryName;
+		pushState(`#${path}`, { directory: path! });
 	}
 
 	function onClickFile(file: FileSystemEntity) {
 		if (file.type === 'directory') {
-			files = [];
-			path += '/' + file.basename;
+			pushDirectory(file.basename);
+		}
+	}
+
+	$: filteredFiles = allFiles.filter((fse) => controller.filterFileSystemEntity(fse));
+	$: filteredFilesSorted = [...filteredFiles].sort((a, b) => {
+		if (a.type !== b.type) {
+			return a.type === 'directory' ? -1 : 1;
+		}
+
+		return a.basename.localeCompare(b.basename);
+	});
+
+	function pushRoot(root: FileSystemRoot) {
+		const previousPath = path;
+
+		path = root.identifier;
+		if (!path.includes('/')) {
+			path += '/';
+		}
+
+		if (previousPath === undefined) {
+			replaceState(`#${path}`, { directory: path! });
+		} else {
+			pushState(`#${path}`, { directory: path! });
 		}
 	}
 
 	onMount(async () => {
 		roots = await controller.listRoots();
+
+		if (path === undefined) {
+			pushRoot(roots[0]);
+		}
 	});
 </script>
 
@@ -55,7 +94,7 @@
 		<div class="scroll-container">
 			<table>
 				{#each roots as root (root.identifier)}
-					<TableRow selected={path.startsWith(root.identifier)}>
+					<TableRow on:click={() => pushRoot(root)} selected={path?.startsWith(root.identifier)}>
 						<td>{root.identifier}</td>
 					</TableRow>
 				{/each}
@@ -64,12 +103,10 @@
 
 		<div class="scroll-container expand">
 			<table>
-				{#each files as file}
-					<FileExplorerItemRow
-						name={file.basename}
-						type={file.type}
-						on:click={() => onClickFile(file)}
-					/>
+				{#each filteredFilesSorted as file, index}
+					<TableRow staggeringIndex={index} on:click={() => onClickFile(file)}>
+						<FileExplorerItemRow name={file.basename} type={file.type} />
+					</TableRow>
 				{/each}
 			</table>
 		</div>
