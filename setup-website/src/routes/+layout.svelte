@@ -35,6 +35,21 @@
 		border: 1px solid var(--color-separator);
 	}
 
+	:global(button) {
+		cursor: pointer;
+		background-color: white;
+		transition: 0.1s;
+	}
+
+	:global(button:hover) {
+		background-color: var(--color-primary-light2);
+		transition-duration: 0.05s;
+	}
+
+	:global(button:active) {
+		background-color: var(--color-primary-light1);
+	}
+
 	:global(*) {
 		transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 	}

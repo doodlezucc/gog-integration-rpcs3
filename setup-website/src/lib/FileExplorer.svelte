@@ -22,6 +22,8 @@
 	import { browser } from '$app/environment';
 	import { pushState, replaceState } from '$app/navigation';
 	import FileExplorerItemRow from './FileExplorerItemRow.svelte';
+	import IconButton from './IconButton.svelte';
+	import ArrowLeft from './icons/ArrowLeft.svelte';
 	import TableRow from './TableRow.svelte';
 
 	export let controller: FileExplorerController;
@@ -88,7 +90,10 @@
 </script>
 
 <div class="file-explorer">
-	<input type="text" bind:value={userEnteredPath} />
+	<div class="row">
+		<IconButton on:click={() => window.history.back()} Component={ArrowLeft} />
+		<input type="text" bind:value={userEnteredPath} />
+	</div>
 
 	<div class="row">
 		<div class="scroll-container">
