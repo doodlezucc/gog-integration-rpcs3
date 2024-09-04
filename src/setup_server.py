@@ -1,13 +1,12 @@
 from http import HTTPStatus
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer, HTTPServer
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 from pathlib import Path
-import sys
 from threading import Thread
 from urllib.parse import parse_qs, urlparse
 
-from platform_overrides import Platform
+from .platform_overrides import Platform
 
 # P -> 16, S -> 19
 SERVER_PORT = 1619
@@ -87,7 +86,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
 
 def serve_file_explorer():
-    server = HTTPServer(("localhost", SERVER_PORT), CustomHandler)
+    server = ThreadingHTTPServer(("localhost", SERVER_PORT), CustomHandler)
 
     server_thread = Thread(target=server.serve_forever)
     server_thread.daemon = True
