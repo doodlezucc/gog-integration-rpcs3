@@ -30,21 +30,4 @@
 
 <svelte:window on:popstate={() => (currentPath = getDirectoryFromURL())} />
 
-<main>
-	<FileExplorer bind:path={currentPath} controller={fileExplorerController} />
-</main>
-
-<style>
-	main {
-		width: 100%;
-		max-width: 800px;
-		min-height: 0;
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-	}
-
-	:global(main > *) {
-		flex: 1;
-	}
-</style>
+<FileExplorer bind:path={currentPath} controller={fileExplorerController} />

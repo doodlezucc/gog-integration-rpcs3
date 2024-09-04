@@ -24,13 +24,8 @@
 
 		height: 100vh;
 		margin: 0;
-		padding: 80px 24px;
 		box-sizing: border-box;
-
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
+		display: grid;
 	}
 
 	:global(input) {

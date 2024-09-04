@@ -116,20 +116,16 @@
 <style>
 	.file-explorer {
 		background-color: white;
-		box-shadow: 0 2px 4px #1113;
-
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-rows: min-content auto;
 		gap: 8px;
 		padding: 16px;
-		border-radius: 16px;
 		min-height: 0;
 	}
 
 	.row {
-		flex: 1;
-		display: flex;
-		flex-direction: row;
+		display: grid;
+		grid-template-columns: min-content auto;
 		gap: 8px;
 		min-height: 0;
 	}
