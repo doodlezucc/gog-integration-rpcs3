@@ -7,8 +7,8 @@ from threading import Thread
 
 from urllib.parse import parse_qs, urlparse
 
-from platform_overrides import Platform
-from util.dialog import file_explorer
+from .platform_overrides import Platform
+from .util.dialog import file_explorer
 
 # P -> 16, S -> 19
 SERVER_PORT = 1619

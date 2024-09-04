@@ -1,12 +1,18 @@
-<script>
+<script lang="ts">
+	import { goto } from '$app/navigation';
 	import { RestConnection } from '$lib/rest';
 
 	const rest = new RestConnection('http://localhost:1619/api');
 
 	async function openFolderViaRest() {
-		const { rpcs3Path } = await rest.locateRPCS3();
+		const response = await rest.locateRPCS3();
 
-		console.log(rpcs3Path);
+		console.log(response);
+
+		const queryParameters = <Record<string, string>>{ ...response };
+		const queryParametersString = new URLSearchParams(queryParameters).toString();
+
+		goto(`/callback?${queryParametersString}`);
 	}
 </script>
 

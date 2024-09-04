@@ -1,5 +1,6 @@
 interface LocateRPCS3Response {
-	rpcs3Path: string | null;
+	executable: string | null;
+	configurationDirectory: string | null;
 }
 
 export class RestConnection {

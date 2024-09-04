@@ -45,9 +45,13 @@ class RPCS3IntegrationPlugin(Plugin):
         return NextStep("rpcs3_user", PARAMS)
 
     async def pass_login_credentials(self, step, credentials, cookies):
+        self.store_credentials(credentials)
+
         self.rpcs3 = RPCS3(
             credentials["executable"], credentials["configurationDirectory"]
         )
+
+        return Authentication("rpcs3_user", "RPCS3")
 
     # required
     async def get_owned_games(self):
