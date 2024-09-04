@@ -1,13 +1,14 @@
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
+from os import path
 from pathlib import Path
 from threading import Thread
 
-import tkinter as tk
-from tkinter import filedialog
-
 from urllib.parse import parse_qs, urlparse
+
+from platform_overrides import Platform
+from util.dialog import file_explorer
 
 # P -> 16, S -> 19
 SERVER_PORT = 1619
@@ -27,7 +28,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
         return host
 
     def do_GET(self):
-        if self.path.startswith("/api"):
+        if self.path.startswith("/api/"):
             return self.handle_file_explorer_api(self.path[5:])
 
         return super().do_GET()
@@ -46,15 +47,37 @@ class CustomHandler(SimpleHTTPRequestHandler):
             return self.send_error(500, str(e))
 
     def handle_api_locate_rpcs3(self):
-        tk_root = tk.Tk()
-        tk_root.withdraw()
-        exe_path = filedialog.askopenfilename(
-            title="Select your RPCS3 executable",
-            filetypes=[("Executable", "*.exe")],
-        )
-        tk_root.destroy()
+        configuration_directory = self._locate_rpcs3_directory()
+        rpcs3_exe = self._locate_rpcs3_exe()
 
-        return self._send_response_json({"rpcs3Path": exe_path})
+        return self._send_response_json(
+            {
+                "executable": rpcs3_exe,
+                "configurationDirectory": configuration_directory,
+            }
+        )
+
+    def _locate_rpcs3_directory(self):
+        default_directory = Platform.current.default_rpcs_directory
+
+        if default_directory is not None:
+            if path.exists(default_directory):
+                return default_directory
+
+        with file_explorer() as f:
+            return f.dialog_open_directory(
+                title="Select your RPCS3 root directory",
+            )
+
+    def _locate_rpcs3_exe(self):
+        with file_explorer() as f:
+            return f.dialog_open_file(
+                title="Select your RPCS3 executable",
+                filetypes=[
+                    ("Application", Platform.current.file_extension_rpcs3),
+                    ("All Files", "*.*"),
+                ],
+            )
 
     def _send_response_json(self, object):
         self.send_response(HTTPStatus.OK)
