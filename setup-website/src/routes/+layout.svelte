@@ -25,7 +25,9 @@
 		height: 100vh;
 		margin: 0;
 		box-sizing: border-box;
-		display: grid;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	:global(input) {
@@ -36,9 +38,15 @@
 	}
 
 	:global(button) {
+		font: inherit;
 		cursor: pointer;
 		background-color: white;
 		transition: 0.1s;
+
+		border-radius: 4px;
+		border: 1px solid var(--color-separator);
+
+		padding: 16px 24px;
 	}
 
 	:global(button:hover) {

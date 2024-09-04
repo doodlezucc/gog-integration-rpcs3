@@ -1,13 +1,13 @@
 from http import HTTPStatus
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer, HTTPServer
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
-import os
 from pathlib import Path
-import sys
 from threading import Thread
-from urllib.parse import parse_qs, urlparse
 
-from platform_overrides import Platform
+import tkinter as tk
+from tkinter import filedialog
+
+from urllib.parse import parse_qs, urlparse
 
 # P -> 16, S -> 19
 SERVER_PORT = 1619
@@ -35,40 +35,26 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def handle_file_explorer_api(self, path: str):
         parsed_url = urlparse(path)
         command = parsed_url.path
-        query_parameters = parse_qs(parsed_url.query)
+        # query_parameters = parse_qs(parsed_url.query)
 
         try:
-            if command == "roots":
-                return self.handle_api_roots()
-            elif command == "list":
-                return self.handle_api_list(query_parameters)
+            if command == "locate-rpcs3":
+                return self.handle_api_locate_rpcs3()
             else:
                 return self.send_error(400, "Invalid API command")
         except Exception as e:
             return self.send_error(500, str(e))
 
-    def handle_api_roots(self):
-        return self._send_response_json(
-            [
-                {"identifier": root_dir}
-                for root_dir in Platform.current.list_file_system_roots()
-            ]
+    def handle_api_locate_rpcs3(self):
+        tk_root = tk.Tk()
+        tk_root.withdraw()
+        exe_path = filedialog.askopenfilename(
+            title="Select your RPCS3 executable",
+            filetypes=[("Executable", "*.exe")],
         )
+        tk_root.destroy()
 
-    def handle_api_list(self, params: dict):
-        directory = str(params["directory"][0])
-
-        dir_entries = os.scandir(directory)
-
-        def file_type(is_directory: bool):
-            return "directory" if is_directory else "file"
-
-        return self._send_response_json(
-            [
-                {"basename": dir_entry.name, "type": file_type(dir_entry.is_dir())}
-                for dir_entry in dir_entries
-            ]
-        )
+        return self._send_response_json({"rpcs3Path": exe_path})
 
     def _send_response_json(self, object):
         self.send_response(HTTPStatus.OK)
@@ -87,7 +73,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 
 
 def serve_file_explorer():
-    server = HTTPServer(("localhost", SERVER_PORT), CustomHandler)
+    server = ThreadingHTTPServer(("localhost", SERVER_PORT), CustomHandler)
 
     server_thread = Thread(target=server.serve_forever)
     server_thread.daemon = True
