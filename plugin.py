@@ -2,7 +2,7 @@ import sys
 from typing import Any, Dict, List
 from urllib.parse import urlparse, parse_qs
 
-from galaxy.api.errors import AccessDenied, AuthenticationRequired
+from galaxy.api.errors import AuthenticationRequired
 from galaxy.api.plugin import Plugin, create_and_run_plugin
 from galaxy.api.consts import LocalGameState, Platform
 from galaxy.api.types import (
@@ -58,7 +58,7 @@ class RPCS3IntegrationPlugin(Plugin):
         host, port = server.server_address
 
         PARAMS = {
-            "window_title": f"Configure RPCS3 Integration, {stored_credentials}",
+            "window_title": "Configure RPCS3 Integration",
             "window_width": 800,
             "window_height": 600,
             "start_uri": f"http://localhost:{port}",
@@ -88,7 +88,6 @@ class RPCS3IntegrationPlugin(Plugin):
                 game.id, game.title, None, LicenseInfo(LicenseType.SinglePurchase)
             )
 
-            self.add_game(gog_game)
             return gog_game
 
         rpcs3_games = self.rpcs3.read_games()
@@ -106,6 +105,12 @@ class RPCS3IntegrationPlugin(Plugin):
         rpcs3_games = self.rpcs3.read_games()
 
         return [to_local_game(game) for game in rpcs3_games]
+
+    async def launch_game(self, game_id: str):
+        if self.rpcs3 is None:
+            raise AuthenticationRequired()
+
+        self.rpcs3.launch_game_by_id(game_id)
 
 
 def main():

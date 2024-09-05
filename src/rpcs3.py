@@ -30,6 +30,23 @@ class RPCS3:
 
             return [RPCS3Game.from_yaml_line(line) for line in valid_yaml_lines]
 
+    def _get_game_by_id(self, game_id: str):
+        for game in self.read_games():
+            if game.id == game_id:
+                return game
+
+        raise GameNotFoundError()
+
+    def launch_game_by_id(self, game_id: str):
+        game = self._get_game_by_id(game_id)
+
+        game_eboot_bin = game.find_eboot_file()
+        self._run_with_arguments([game_eboot_bin])
+
+
+class GameNotFoundError(Exception):
+    pass
+
 
 class RPCS3Game:
     def __init__(self, id: str, directory: str):
@@ -55,3 +72,11 @@ class RPCS3Game:
     @property
     def title(self) -> str:
         return self._sfo.title
+
+    @property
+    def _default_eboot_bin_path(self) -> str:
+        return path.join(self.directory, "PS3_GAME", "USRDIR", "EBOOT.BIN")
+
+    def find_eboot_file(self) -> str:
+        # There might be alternative paths?
+        return self._default_eboot_bin_path
