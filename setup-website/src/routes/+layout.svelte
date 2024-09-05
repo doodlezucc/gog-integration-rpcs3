@@ -62,10 +62,7 @@
 	:global(button:not(.icon)) {
 		background-color: var(--color-primary);
 		color: var(--color-text-on-primary);
-		padding: 8px 24px 10px;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		box-shadow: 0 -4px 0 #1115 inset;
+		padding: 8px 24px;
 	}
 
 	:global(button:not(.icon):disabled) {

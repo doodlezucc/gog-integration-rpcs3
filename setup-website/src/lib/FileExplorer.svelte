@@ -102,12 +102,6 @@
 </script>
 
 <div class="file-explorer" in:fade>
-	<div class="row flex-center">
-		<IconButton on:click={() => window.history.back()} Component={ArrowLeft} />
-		<input type="text" bind:value={userEnteredPath} />
-		<slot name="submit-button" />
-	</div>
-
 	<div class="row">
 		<div class="scroll-container">
 			<table>
@@ -133,12 +127,18 @@
 			</table>
 		</div>
 	</div>
+
+	<div class="row flex-center">
+		<IconButton on:click={() => window.history.back()} Component={ArrowLeft} />
+		<input type="text" bind:value={userEnteredPath} />
+		<slot name="submit-button" />
+	</div>
 </div>
 
 <style>
 	.file-explorer {
 		display: grid;
-		grid-template-rows: min-content auto;
+		grid-template-rows: auto min-content;
 		gap: 8px;
 		min-height: 0;
 	}
