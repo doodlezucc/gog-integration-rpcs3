@@ -4,16 +4,19 @@ from os import path
 
 from typing import List
 
-from .platform_overrides import Platform
 from .sfo import decode_sfo_file
 
 
 class RPCS3:
     FILENAME_GAMES_YAML = "games.yml"
 
-    def __init__(self, root: str):
-        self.executable = path.join(root, Platform.current.filename_rpcs_executable)
-        self.games_file = path.join(root, RPCS3.FILENAME_GAMES_YAML)
+    def __init__(self, executable: str, config_directory: str):
+        self.executable = executable
+        self.config_directory = config_directory
+
+    @property
+    def games_file(self) -> str:
+        return path.join(self.config_directory, RPCS3.FILENAME_GAMES_YAML)
 
     def _run_with_arguments(self, args: List[str]):
         return subprocess.run([self.executable] + args)

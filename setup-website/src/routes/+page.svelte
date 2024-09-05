@@ -35,7 +35,11 @@
 
 	function submitDirectory() {
 		if (currentPath && isValidRPCS3Root) {
-			fileExplorerController.submit(currentPath);
+			const queryParameters = new URLSearchParams({
+				configurationDirectory: ''
+			});
+
+			window.location.href = `/callback?${queryParameters}`;
 		}
 	}
 </script>
@@ -65,7 +69,6 @@
 	}
 
 	.bottom-bar {
-		display: flex;
-		justify-content: end;
+		place-self: end;
 	}
 </style>
