@@ -21,6 +21,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { pushState, replaceState } from '$app/navigation';
+	import { fade } from 'svelte/transition';
 	import FileExplorerItemRow from './FileExplorerItemRow.svelte';
 	import IconButton from './IconButton.svelte';
 	import ArrowLeft from './icons/ArrowLeft.svelte';
@@ -89,10 +90,11 @@
 	});
 </script>
 
-<div class="file-explorer">
-	<div class="row">
+<div class="file-explorer" in:fade>
+	<div class="row flex-center">
 		<IconButton on:click={() => window.history.back()} Component={ArrowLeft} />
 		<input type="text" bind:value={userEnteredPath} />
+		<slot name="submit-button" />
 	</div>
 
 	<div class="row">
@@ -131,6 +133,10 @@
 		grid-template-columns: min-content auto;
 		gap: 8px;
 		min-height: 0;
+	}
+
+	.row.flex-center {
+		grid-template-columns: min-content auto max-content;
 	}
 
 	.expand {

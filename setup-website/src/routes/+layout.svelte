@@ -15,7 +15,7 @@
 		--color-text: #222;
 
 		--color-separator: #aaa;
-		--color-disabled: #888;
+		--color-disabled: #666;
 		--color-hover: var(--color-primary-light1);
 		--color-selected: var(--color-primary-light2);
 	}
@@ -27,15 +27,16 @@
 
 		height: 100vh;
 		margin: 0;
-		padding: 16px;
 		box-sizing: border-box;
-		display: grid;
+		display: flex;
+		flex-direction: column;
 	}
 
 	:global(h1) {
 		margin: 0;
-		font-size: 1.8em;
+		font-size: 1.75em;
 		font-weight: normal;
+		color: var(--color-primary);
 	}
 
 	:global(input, button) {
