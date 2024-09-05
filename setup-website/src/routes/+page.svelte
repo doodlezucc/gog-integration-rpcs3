@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FileSystemEntity } from '$lib/FileExplorer.svelte';
 	import { onMount } from 'svelte';
+	import ExecutableDetectedDialog from './ExecutableDetectedDialog.svelte';
 	import Rpcs3FileExplorer from './Rpcs3FileExplorer.svelte';
 	import StepPage from './StepPage.svelte';
 
@@ -20,6 +21,7 @@
 	let currentPath: string;
 	let filesInDirectory: FileSystemEntity[] = [];
 	let focusedFile: FileSystemEntity | null = null;
+	let detectedExecutablePath: string | null = null;
 
 	$: isValidRPCS3Directory = filesInDirectory.some(
 		(fse) => fse.type === 'directory' && fse.basename === 'dev_hdd0'
@@ -27,6 +29,16 @@
 	$: isValidRPCS3Executable = focusedFile !== null;
 
 	let configuration: Partial<RPCS3Configuration> = {};
+
+	function detectExecutable() {
+		const match = filesInDirectory.find(
+			(fse) => fse.type === 'file' && fse.basename.toLowerCase() === 'rpcs3.exe'
+		);
+
+		if (match) {
+			detectedExecutablePath = `${currentPath}/${match.basename}`;
+		}
+	}
 
 	function submitDirectory() {
 		if (currentPath && isValidRPCS3Directory) {
@@ -36,7 +48,7 @@
 			};
 
 			currentStep = ConfigurationStep.LocateExecutable;
-			currentPath = currentPath + '';
+			detectExecutable();
 		}
 	}
 
@@ -54,6 +66,13 @@
 	}
 
 	function submitConfiguration() {
+		if (detectedExecutablePath) {
+			configuration = {
+				...configuration,
+				executable: detectedExecutablePath
+			};
+		}
+
 		const queryParameters = new URLSearchParams(configuration);
 
 		window.location.href = `/callback?${queryParameters}`;
@@ -87,16 +106,35 @@
 		</Rpcs3FileExplorer>
 	</StepPage>
 {:else if currentStep === ConfigurationStep.LocateExecutable}
-	<StepPage title="Locate Your RPCS3 Executable">
+	<StepPage title="Locate Your RPCS3 Application">
 		<span slot="description">
-			Select your RPCS3 application in the file explorer. On Windows, this might be a file called
+			Select your RPCS3 executable in the file explorer. On Windows, this might be a file called
 			"rpcs3.exe".
 		</span>
 
-		<Rpcs3FileExplorer bind:focusedFile bind:currentPath bind:filesInDirectory>
-			<button slot="submit-button" on:click={submitExecutable} disabled={!isValidRPCS3Executable}>
-				Select
-			</button>
-		</Rpcs3FileExplorer>
+		{#if detectedExecutablePath}
+			<div class="dialog-container">
+				<ExecutableDetectedDialog
+					executablePath={detectedExecutablePath}
+					on:clickOther={() => (detectedExecutablePath = null)}
+					on:clickOK={() => submitConfiguration()}
+				/>
+			</div>
+		{:else}
+			<Rpcs3FileExplorer bind:focusedFile bind:currentPath bind:filesInDirectory>
+				<button slot="submit-button" on:click={submitExecutable} disabled={!isValidRPCS3Executable}>
+					Select
+				</button>
+			</Rpcs3FileExplorer>
+		{/if}
 	</StepPage>
 {/if}
+
+<style>
+	.dialog-container {
+		display: grid;
+		align-items: start;
+		justify-items: center;
+		padding-top: 3em;
+	}
+</style>

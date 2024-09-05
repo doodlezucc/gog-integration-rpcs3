@@ -5,7 +5,7 @@
 	export let Component: typeof SvelteComponent<Record<string, never>>;
 </script>
 
-<button class="icon" on:click>
+<button class="icon shallow" on:click>
 	<Icon {Component} />
 </button>
 

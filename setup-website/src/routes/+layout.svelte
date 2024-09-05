@@ -1,9 +1,9 @@
 <slot />
 
-<style>
+<style global>
 	@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-	:global(body) {
+	body {
 		--color-text-on-primary: #ffffff;
 		--color-primary: #0d68d8;
 		--color-primary-dark1: #0c52a8;
@@ -21,7 +21,7 @@
 		--color-selected: var(--color-primary);
 	}
 
-	:global(body) {
+	body {
 		font-family: 'Open Sans', Arial, sans-serif;
 		color: var(--color-text);
 		background-color: var(--color-background);
@@ -33,57 +33,75 @@
 		flex-direction: column;
 	}
 
-	:global(h1) {
+	h1,
+	h2 {
 		margin: 0;
-		font-size: 1.75em;
 		font-weight: normal;
 		color: var(--color-primary);
 	}
 
-	:global(input, button) {
+	h1 {
+		font-size: 1.75em;
+	}
+
+	input,
+	button {
 		font: inherit;
 		border: none;
 		border-radius: 6px;
 	}
 
-	:global(input) {
+	input {
 		padding: 8px 12px;
 		border: 1px solid var(--color-separator);
 	}
 
-	:global(button) {
+	button {
 		transition: 0.3s;
 	}
 
-	:global(button:enabled) {
+	button:enabled {
 		cursor: pointer;
 	}
 
-	:global(button:not(.icon)) {
+	button:not(.icon) {
 		background-color: var(--color-primary);
 		color: var(--color-text-on-primary);
 		padding: 8px 24px;
 	}
 
-	:global(button:not(.icon):disabled) {
+	button:not(.icon):disabled {
 		background-color: var(--color-disabled);
 		opacity: 0.5;
 	}
 
-	:global(button:enabled:hover) {
+	button:enabled:hover {
 		background-color: var(--color-primary-dark1);
 		transition-duration: 0.05s;
 	}
 
-	:global(button:enabled:active) {
+	button:enabled:active {
 		background-color: var(--color-primary-dark2);
 	}
 
-	:global(*) {
+	button.shallow {
+		background-color: white;
+		color: var(--color-text);
+	}
+
+	button.shallow:hover {
+		background-color: var(--color-hover);
+	}
+
+	button.shallow:active {
+		background-color: var(--color-active);
+	}
+
+	* {
 		transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 	}
 
-	:global(header) {
+	header {
 		background-color: var(--color-primary);
 		text-align: center;
 		color: var(--color-text-on-primary);
