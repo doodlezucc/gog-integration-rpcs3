@@ -19,10 +19,10 @@
 	}
 
 	button:hover {
-		background-color: var(--color-primary-light2);
+		background-color: var(--color-hover);
 	}
 
 	button:active {
-		background-color: var(--color-primary-light1);
+		background-color: var(--color-active);
 	}
 </style>

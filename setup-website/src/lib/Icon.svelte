@@ -16,6 +16,6 @@
 
 	:global(i.icon svg) {
 		height: inherit;
-		fill: var(--color-text);
+		fill: currentColor;
 	}
 </style>

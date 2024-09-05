@@ -19,12 +19,12 @@
 
 	let currentPath: string;
 	let filesInDirectory: FileSystemEntity[] = [];
-	let focusedFile: FileSystemEntity | undefined;
+	let focusedFile: FileSystemEntity | null = null;
 
 	$: isValidRPCS3Directory = filesInDirectory.some(
 		(fse) => fse.type === 'directory' && fse.basename === 'dev_hdd0'
 	);
-	$: isValidRPCS3Executable = false;
+	$: isValidRPCS3Executable = focusedFile !== null;
 
 	let configuration: Partial<RPCS3Configuration> = {};
 
@@ -40,10 +40,21 @@
 		}
 	}
 
+	function submitExecutable() {
+		if (focusedFile && isValidRPCS3Executable) {
+			const pathToExecutable = `${currentPath}/${focusedFile.basename}`;
+
+			configuration = {
+				...configuration,
+				executable: pathToExecutable
+			};
+
+			submitConfiguration();
+		}
+	}
+
 	function submitConfiguration() {
-		const queryParameters = new URLSearchParams({
-			configurationDirectory: ''
-		});
+		const queryParameters = new URLSearchParams(configuration);
 
 		window.location.href = `/callback?${queryParameters}`;
 	}
@@ -69,7 +80,7 @@
 			The <i>RPCS3 directory</i> contains PS3 sub-directories such as "dev_hdd0" and similar.
 		</span>
 
-		<Rpcs3FileExplorer bind:currentPath bind:filesInDirectory>
+		<Rpcs3FileExplorer hideFiles bind:currentPath bind:filesInDirectory>
 			<button slot="submit-button" on:click={submitDirectory} disabled={!isValidRPCS3Directory}>
 				Use Directory
 			</button>
@@ -78,26 +89,14 @@
 {:else if currentStep === ConfigurationStep.LocateExecutable}
 	<StepPage title="Locate Your RPCS3 Executable">
 		<span slot="description">
-			Navigate to your RPCS3 application. On Windows, this might be a file called "rpcs3.exe".
+			Select your RPCS3 application in the file explorer. On Windows, this might be a file called
+			"rpcs3.exe".
 		</span>
 
-		<Rpcs3FileExplorer bind:currentPath bind:filesInDirectory>
-			<button
-				slot="submit-button"
-				on:click={submitConfiguration}
-				disabled={!isValidRPCS3Executable}
-			>
+		<Rpcs3FileExplorer bind:focusedFile bind:currentPath bind:filesInDirectory>
+			<button slot="submit-button" on:click={submitExecutable} disabled={!isValidRPCS3Executable}>
 				Select
 			</button>
 		</Rpcs3FileExplorer>
 	</StepPage>
 {/if}
-
-<style>
-	header {
-		background-color: var(--color-primary);
-		text-align: center;
-		color: var(--color-text-on-primary);
-		padding: 0.5em;
-	}
-</style>

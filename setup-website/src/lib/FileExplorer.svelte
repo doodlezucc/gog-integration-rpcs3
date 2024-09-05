@@ -29,14 +29,17 @@
 
 	export let controller: FileExplorerController;
 	export let path: string | undefined = undefined;
+	export let hideFiles: boolean = false;
 
 	$: userEnteredPath = path;
 
 	let roots: FileSystemRoot[] = [];
 	export let files: FileSystemEntity[] = [];
+	export let focusedFile: FileSystemEntity | null = null;
 
 	$: {
 		if (path && browser) {
+			focusedFile = null;
 			files = [];
 			controller.listFilesInDirectory(path).then((fetchedFiles) => (files = fetchedFiles));
 		}
@@ -54,10 +57,18 @@
 	function onClickFile(file: FileSystemEntity) {
 		if (file.type === 'directory') {
 			pushDirectory(file.basename);
+		} else {
+			focusedFile = file;
 		}
 	}
 
-	$: filteredFiles = files.filter((fse) => controller.filterFileSystemEntity(fse));
+	$: filteredFiles = files.filter((fse) => {
+		if (hideFiles && fse.type === 'file') {
+			return false;
+		}
+
+		return controller.filterFileSystemEntity(fse);
+	});
 	$: filteredFilesSorted = [...filteredFiles].sort((a, b) => {
 		if (a.type !== b.type) {
 			return a.type === 'directory' ? -1 : 1;
@@ -111,7 +122,11 @@
 		<div class="scroll-container expand">
 			<table>
 				{#each filteredFilesSorted as file, index}
-					<TableRow staggeringIndex={index} on:click={() => onClickFile(file)}>
+					<TableRow
+						staggeringIndex={index}
+						selected={focusedFile === file}
+						on:click={() => onClickFile(file)}
+					>
 						<FileExplorerItemRow name={file.basename} type={file.type} />
 					</TableRow>
 				{/each}

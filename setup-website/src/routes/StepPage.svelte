@@ -30,7 +30,7 @@
 	p {
 		font-size: 1em;
 		margin: 0;
-		padding-bottom: 1em;
+		padding-bottom: 1.5em;
 		color: var(--color-disabled);
 	}
 </style>

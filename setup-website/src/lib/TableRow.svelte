@@ -16,13 +16,15 @@
 		transition-duration: 0.3s;
 	}
 
-	:global(tr.selected) {
-		background-color: var(--color-selected);
-	}
-
 	:global(tr:hover) {
 		background-color: var(--color-hover);
+		color: var(--color-text);
 		transition-duration: 0s;
+	}
+
+	:global(tr.selected) {
+		background-color: var(--color-selected);
+		color: var(--color-text-on-primary);
 	}
 
 	:global(td) {

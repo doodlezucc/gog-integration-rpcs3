@@ -8,16 +8,17 @@
 		--color-primary: #0d68d8;
 		--color-primary-dark1: #0c52a8;
 		--color-primary-dark2: #154177;
-		--color-primary-light1: #95c5ff;
-		--color-primary-light2: #c3deff;
+		--color-shade-light1: #a8a8a8;
+		--color-shade-light2: #e2e2e2;
 
 		--color-background: #ffffff;
 		--color-text: #222;
 
 		--color-separator: #aaa;
 		--color-disabled: #666;
-		--color-hover: var(--color-primary-light1);
-		--color-selected: var(--color-primary-light2);
+		--color-hover: var(--color-shade-light2);
+		--color-active: var(--color-shade-light1);
+		--color-selected: var(--color-primary);
 	}
 
 	:global(body) {
@@ -83,5 +84,12 @@
 
 	:global(*) {
 		transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+	}
+
+	:global(header) {
+		background-color: var(--color-primary);
+		text-align: center;
+		color: var(--color-text-on-primary);
+		padding: 0.5em;
 	}
 </style>
