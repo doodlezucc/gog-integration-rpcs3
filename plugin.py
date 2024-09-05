@@ -1,5 +1,6 @@
 import sys
 from typing import Any, Dict, List
+from urllib.parse import urlparse, parse_qs
 
 from galaxy.api.errors import AccessDenied, AuthenticationRequired
 from galaxy.api.plugin import Plugin, create_and_run_plugin
@@ -24,22 +25,35 @@ class RPCS3IntegrationPlugin(Plugin):
 
     def __init__(self, reader, writer, token):
         super().__init__(
-            Platform.PlayStation,
-            RPCS3IntegrationPlugin.VERSION,
-            reader,
-            writer,
-            token,
+            Platform.PlayStation, RPCS3IntegrationPlugin.VERSION, reader, writer, token
         )
 
         self.rpcs3 = None
 
-    def _initialize_rpcs3(self, credentials: Dict[str, Any]):
+    def _initialize_rpcs3(self, configuration: Dict[str, str]):
         self.rpcs3 = RPCS3(
-            credentials["executable"], credentials["configurationDirectory"]
+            configuration["executable"], configuration["configurationDirectory"]
         )
+
+    def _parse_configuration_from_next_step(self, next_step_response: Dict[str, Any]):
+        callback_url = next_step_response["end_uri"]
+
+        parsed_url = urlparse(callback_url)
+        query_parameters = parse_qs(parsed_url.query)
+
+        return {
+            "executable": query_parameters["executable"][0],
+            "configurationDirectory": query_parameters["configurationDirectory"][0],
+        }
 
     # required
     async def authenticate(self, stored_credentials=None):
+        if stored_credentials is not None:
+            self._initialize_rpcs3(stored_credentials)
+            return Authentication(
+                RPCS3IntegrationPlugin.USER_ID, RPCS3IntegrationPlugin.USER_NAME
+            )
+
         server = serve_file_explorer()
         host, port = server.server_address
 
@@ -54,8 +68,10 @@ class RPCS3IntegrationPlugin(Plugin):
         return NextStep("web_session", PARAMS)
 
     async def pass_login_credentials(self, step, credentials: Dict[str, str], cookies):
-        self._initialize_rpcs3(credentials)
-        self.store_credentials(credentials)
+        configuration = self._parse_configuration_from_next_step(credentials)
+
+        self._initialize_rpcs3(configuration)
+        self.store_credentials(configuration)
 
         return Authentication(
             RPCS3IntegrationPlugin.USER_ID, RPCS3IntegrationPlugin.USER_NAME
