@@ -12,7 +12,7 @@
 <style>
 	:global(tr) {
 		user-select: none;
-		height: 36px;
+		height: 28px;
 		transition-duration: 0.3s;
 	}
 

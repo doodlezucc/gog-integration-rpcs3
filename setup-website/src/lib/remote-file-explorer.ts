@@ -29,4 +29,8 @@ export class RemoteFileExplorerController implements FileExplorerController {
 	async listRoots(): Promise<FileSystemRoot[]> {
 		return await this.fetchJson('/roots');
 	}
+
+	async submit(directory: string): Promise<void> {
+		return await this.fetchJson(`/submit?directory=${directory}`);
+	}
 }

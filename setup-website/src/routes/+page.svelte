@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
 	import { browser } from '$app/environment';
+	import type { FileSystemEntity } from '$lib/FileExplorer.svelte';
 	import FileExplorer from '$lib/FileExplorer.svelte';
 	import { RemoteFileExplorerController } from '$lib/remote-file-explorer';
 
@@ -26,8 +27,45 @@
 	}
 
 	let currentPath = getDirectoryFromURL();
+	let filesInDirectory: FileSystemEntity[] = [];
+
+	$: isValidRPCS3Root = filesInDirectory.some(
+		(fse) => fse.type === 'directory' && fse.basename === 'dev_hdd0'
+	);
+
+	function submitDirectory() {
+		if (currentPath && isValidRPCS3Root) {
+			fileExplorerController.submit(currentPath);
+		}
+	}
 </script>
 
 <svelte:window on:popstate={() => (currentPath = getDirectoryFromURL())} />
 
-<FileExplorer bind:path={currentPath} controller={fileExplorerController} />
+<main>
+	<h1>Locate your RPCS3 Directory</h1>
+
+	<FileExplorer
+		bind:path={currentPath}
+		bind:files={filesInDirectory}
+		controller={fileExplorerController}
+	></FileExplorer>
+
+	<div class="bottom-bar">
+		<button on:click={submitDirectory} disabled={!isValidRPCS3Root}>Use Directory</button>
+	</div>
+</main>
+
+<style>
+	main {
+		display: grid;
+		gap: 8px;
+		grid-template-rows: min-content auto min-content;
+		min-height: 0;
+	}
+
+	.bottom-bar {
+		display: flex;
+		justify-content: end;
+	}
+</style>

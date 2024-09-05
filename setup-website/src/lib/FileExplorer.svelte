@@ -32,12 +32,12 @@
 	$: userEnteredPath = path;
 
 	let roots: FileSystemRoot[] = [];
-	let allFiles: FileSystemEntity[] = [];
+	export let files: FileSystemEntity[] = [];
 
 	$: {
 		if (path && browser) {
-			allFiles = [];
-			controller.listFilesInDirectory(path).then((fetchedFiles) => (allFiles = fetchedFiles));
+			files = [];
+			controller.listFilesInDirectory(path).then((fetchedFiles) => (files = fetchedFiles));
 		}
 	}
 
@@ -56,7 +56,7 @@
 		}
 	}
 
-	$: filteredFiles = allFiles.filter((fse) => controller.filterFileSystemEntity(fse));
+	$: filteredFiles = files.filter((fse) => controller.filterFileSystemEntity(fse));
 	$: filteredFilesSorted = [...filteredFiles].sort((a, b) => {
 		if (a.type !== b.type) {
 			return a.type === 'directory' ? -1 : 1;
@@ -120,11 +120,9 @@
 
 <style>
 	.file-explorer {
-		background-color: white;
 		display: grid;
 		grid-template-rows: min-content auto;
 		gap: 8px;
-		padding: 16px;
 		min-height: 0;
 	}
 

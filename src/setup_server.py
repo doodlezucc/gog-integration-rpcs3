@@ -6,7 +6,10 @@ from pathlib import Path
 from threading import Thread
 from urllib.parse import parse_qs, urlparse
 
-from .platform_overrides import Platform
+if not __name__ == "__main__":
+    from .platform_overrides import Platform
+else:
+    from platform_overrides import Platform
 
 # P -> 16, S -> 19
 SERVER_PORT = 1619

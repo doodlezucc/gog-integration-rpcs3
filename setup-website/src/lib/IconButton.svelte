@@ -5,7 +5,7 @@
 	export let Component: typeof SvelteComponent<Record<string, never>>;
 </script>
 
-<button on:click>
+<button class="icon" on:click>
 	<Icon {Component} />
 </button>
 
@@ -15,5 +15,14 @@
 		height: 40px;
 		border-radius: 4px;
 		border: 1px solid var(--color-separator);
+		background-color: white;
+	}
+
+	button:hover {
+		background-color: var(--color-primary-light2);
+	}
+
+	button:active {
+		background-color: var(--color-primary-light1);
 	}
 </style>
